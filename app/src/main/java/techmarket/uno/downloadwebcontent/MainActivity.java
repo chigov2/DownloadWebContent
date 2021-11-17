@@ -6,8 +6,10 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -46,17 +48,33 @@ public class MainActivity extends AppCompatActivity {
                 url = new URL(strings[0]);
 
                 //открываем соединение
-                urlConnection = (HttpURLConnection)url.openConnection();//необходимо было приведение типов
+                urlConnection = (HttpURLConnection)url.openConnection();//как будто открыли сайт
 
                 //начинаем читать данные - открываем поток
                 InputStream in = urlConnection.getInputStream();//получаем поток ввода
+
+                //для чтения данных создается...
+                InputStreamReader reader = new InputStreamReader(in);
+
+                //ридер создан - можем читать данные. Чтобы читать строками - создаем Buffered reader
+                BufferedReader bufferedReader = new BufferedReader(reader);
+                String line = bufferedReader.readLine();
+                //теперь необходимо сохранить строку в StreamBuilder
+                while(line != null){
+                    result.append(line);
+                    line = bufferedReader.readLine();
+                }
+
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
+                if (urlConnection != null){
+                    urlConnection.disconnect();
+                }
             }
-            return "Done";
+            return result.toString();
         }
     }
 }
